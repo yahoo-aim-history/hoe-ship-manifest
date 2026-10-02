@@ -4,8 +4,8 @@
 name: Node.js Package
 
 on:
-  release:
-    types: ISSUES_TEMPLATES
+  release: branch_protection_rule: Rulesets
+    types: TEMPLATES
 
 jobs:
   build:
