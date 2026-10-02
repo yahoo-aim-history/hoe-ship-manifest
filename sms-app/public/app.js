@@ -2,19 +2,24 @@ const form = document.querySelector('#message-form');
 const recipient = document.querySelector('#recipient');
 const message = document.querySelector('#message');
 const notice = document.querySelector('#notice');
+const characterCount = document.querySelector('#character-count');
+const segmentEstimate = document.querySelector('#segment-estimate');
 const activity = [];
 
 function updatePreview() {
-  document.querySelector('#character-count').textContent = `${message.value.length.toLocaleString()} / 1,600`;
+  characterCount.textContent = `${message.value.length.toLocaleString()} / 1,600`;
+  characterCount.setAttribute('aria-label', `${message.value.length} of 1,600 characters`);
   const segments = message.value.length <= 160 ? 1 : Math.ceil(message.value.length / 153);
-  document.querySelector('#segment-estimate').textContent = `${segments} segment${segments === 1 ? '' : 's'} est.`;
+  segmentEstimate.textContent = `${segments} segment${segments === 1 ? '' : 's'} estimated`;
   document.querySelector('#message-preview').textContent = message.value || 'Your message preview appears here.';
   document.querySelector('#preview-contact').textContent = recipient.value.trim() || 'Unknown number';
 }
 
 function renderActivity() {
   const list = document.querySelector('#activity-list');
-  document.querySelector('#activity-count').textContent = String(activity.length);
+  const count = document.querySelector('#activity-count');
+  count.textContent = String(activity.length);
+  count.setAttribute('aria-label', `${activity.length} recent message attempts`);
   list.replaceChildren();
   if (!activity.length) {
     const empty = document.createElement('div');
@@ -32,6 +37,7 @@ function renderActivity() {
   for (const item of activity) {
     const row = document.createElement('div');
     row.className = 'activity-item';
+    row.setAttribute('role', 'listitem');
     const main = document.createElement('div');
     main.className = 'activity-main';
     const number = document.createElement('div');
@@ -70,6 +76,10 @@ form.addEventListener('submit', async (event) => {
   notice.hidden = true;
   const button = document.querySelector('#send-button');
   const buttonLabel = button.querySelector('.button-label');
+  form.setAttribute('aria-busy', 'true');
+  notice.textContent = 'Sending message...';
+  notice.dataset.state = 'pending';
+  notice.hidden = false;
   button.disabled = true;
   buttonLabel.textContent = 'Sending...';
   const payload = {
@@ -107,6 +117,7 @@ form.addEventListener('submit', async (event) => {
   }
   button.disabled = false;
   buttonLabel.textContent = 'Send message';
+  form.setAttribute('aria-busy', 'false');
 });
 
 updatePreview();
